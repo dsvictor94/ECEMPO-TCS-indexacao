@@ -78,5 +78,11 @@ int main(){
     char tokenized_doc[] = "documents/exemplo_tokenized.txt";
     tokenize(doc, tokenized_doc);
 
+
+    char doc2[] = "documents/exemplo2.txt";
+    char tokenized_doc2[] = "documents/exemplo2_tokenized.txt";
+    tokenize(doc2, tokenized_doc2);
+
+
     return 0;
 }
