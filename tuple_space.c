@@ -37,6 +37,7 @@ int tuple_space_take(tuple_space_t *tuple_space, const char *tuple) {
     int fd;
     size_t pattern_size = strlen(tuple_space->path) + strlen(tuple) + 2;
     char *pattern = malloc(pattern_size);
+    pattern[0] = '\0';
     strcat(pattern, tuple_space->path);
     strcat(pattern, "/");
     strcat(pattern, tuple);
@@ -82,6 +83,7 @@ int tuple_space_read(tuple_space_t *tuple_space, const char *tuple) {
     int fd;
     size_t pattern_size = strlen(tuple_space->path) + strlen(tuple) + 2;
     char *pattern = malloc(pattern_size);
+    pattern[0] = '\0';
     strcat(pattern, tuple_space->path);
     strcat(pattern, "/");
     strcat(pattern, tuple);
@@ -123,9 +125,13 @@ int tuple_space_write(tuple_space_t *tuple_space, const char *tuple) {
     int fd;
     size_t pattern_size = strlen(tuple_space->path) + strlen(tuple) + 2;
     char *pattern = malloc(pattern_size);
+    pattern[0] = '\0';
     strcat(pattern, tuple_space->path);
+    //printf("--- %s %s\n", pattern, tuple_space->path);
     strcat(pattern, "/");
+    // printf("--- %s\n", pattern);
     strcat(pattern, tuple);
+    // printf("--- %s %s\n", pattern, tuple);
     
     while (1) {
         fd = open(pattern, O_RDWR | O_CREAT, 0664);
@@ -139,7 +145,7 @@ int tuple_space_write(tuple_space_t *tuple_space, const char *tuple) {
     }
 
     endok:
-    printf("DEBUG %s \n", pattern);
+    // printf("DEBUG %s \n", pattern);
     return fd;
     endfail:
     return -1;
@@ -147,19 +153,4 @@ int tuple_space_write(tuple_space_t *tuple_space, const char *tuple) {
 
 int tuple_space_release(int fd) {
     close(fd);
-}
-
-tuple_space_t ts;
-
-int main(int argc, char const *argv[]){
-    tuple_space_init(&ts, "/tmp/ts");
-
-    int fd = tuple_space_write(&ts, "a/b");
-
-    if (fd != -1) printf("Teste %i \n", fd);
-
-    sleep(20);
-
-    tuple_space_destroy(&ts);
-    return 0;
 }

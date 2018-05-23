@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "tuple_space.h"
+
 //função para verificar se um caractere está presente em uma string
 bool is_in(char *str, char c){
     for(int i = 0; str[i]; i++){
@@ -59,12 +61,12 @@ void remove_punctuation(char *str){
 }
 
 //função para realizar a tokenização de um documento
-void tokenize(char *doc, char *tokenized_doc){
+void tokenize(int doc_fd, int tokenized_doc_fd){
     // declara e abre os documentos
     FILE *document;
     FILE *tokenized_document;
-    document = fopen(doc, "r");
-    tokenized_document = fopen(tokenized_doc, "w");
+    document = fdopen(doc_fd, "r");
+    tokenized_document = fdopen(tokenized_doc_fd, "w");
 
     char word[1024];
 
@@ -84,18 +86,27 @@ void tokenize(char *doc, char *tokenized_doc){
 }
 
 int main(){
+    tuple_space_t tuple_space;
+    tuple_space_init(&tuple_space, "/tmp/ts");
+    int fd = 0;
+    int fd_to_write = 0;
+    int doc = 0;
+    char buffer[20];
 
-    // declara os caminhos dos documentos e chama a função de tokenizar
-    char doc[] = "documents/exemplo.txt";
-    char tokenized_doc[] = "documents/exemplo_tokenized.txt";
-    tokenize(doc, tokenized_doc);
+    while(fd = tuple_space_take(&tuple_space, "doc/*")) {
+        // declara os caminhos dos documentos e chama a função de tokenizar
+        sprintf(buffer, "%d.txt", doc);
+        fd_to_write = tuple_space_write(&tuple_space, buffer);
 
+        // printf("start %d: %s (%d)\n", doc, buffer, fd_to_write);
+        tokenize(fd, fd_to_write);
+        // printf("end %d\n", doc);
 
-    // declara os caminhos dos documentos e chama a função de tokenizar
-    char doc2[] = "documents/exemplo2.txt";
-    char tokenized_doc2[] = "documents/exemplo2_tokenized.txt";
-    tokenize(doc2, tokenized_doc2);
+        doc++;
 
-
+        tuple_space_release(fd_to_write);
+        tuple_space_release(fd);
+    }
+    
     return 0;
 }
